@@ -68,22 +68,44 @@ else()
   find_package( HDF5 COMPONENTS C CXX )
 endif()
 
-option( USE_SYSTEM_VTK "Use system libraries for VTK" OFF )
-if( ${USE_SYSTEM_VTK} MATCHES "OFF" )
-  include( External-VTK.cmake )
-  set( Statismo_DEPENDENCIES ${Statismo_DEPENDENCIES} VTK )
+option( VTK_SUPPORT "Build VTK Support" OFF )
+if( VTK_SUPPORT )
+  option( USE_SYSTEM_VTK "Use system libraries for VTK" OFF )
+  if( ${USE_SYSTEM_VTK} MATCHES "OFF" )
+    include( External-VTK.cmake )
+    set( Statismo_DEPENDENCIES ${Statismo_DEPENDENCIES} VTK )
+  else()
+    find_package( VTK REQUIRED )
+    include( ${VTK_USE_FILE} )
+  endif()
+  set( _vtk_args
+    -DVTK_SUPPORT:BOOL=ON
+    -DVTK_DIR:PATH=${VTK_DIR}
+    )
 else()
-  find_package( VTK REQUIRED )
-  include( ${VTK_USE_FILE} )
+  set( _vtk_args
+    -DVTK_SUPPORT:BOOL=OFF
+    )
 endif()
 
-option( USE_SYSTEM_ITK "Use system libraries for ITK" OFF )
-if( ${USE_SYSTEM_ITK} MATCHES "OFF" )
-  include( External-ITK.cmake )
-  set( Statismo_DEPENDENCIES ${Statismo_DEPENDENCIES} ITK )
+option( ITK_SUPPORT "Build ITK Support" OFF )
+if( ITK_SUPPORT )
+  option( USE_SYSTEM_ITK "Use system libraries for ITK" OFF )
+  if( ${USE_SYSTEM_ITK} MATCHES "OFF" )
+    include( External-ITK.cmake )
+    set( Statismo_DEPENDENCIES ${Statismo_DEPENDENCIES} ITK )
+  else()
+    find_package( ITK REQUIRED )
+    include( ${ITK_USE_FILE} )
+  endif()
+  set( _itk_args
+    -DITK_SUPPORT:BOOL=ON
+    -DITK_DIR:PATH=${ITK_DIR}
+    )
 else()
-  find_package( ITK REQUIRED )
-  include( ${ITK_USE_FILE} )
+  set( _itk_args
+    -DITK_SUPPORT:BOOL=OFF
+    )
 endif()
 
 ExternalProject_Add( Statismo
@@ -98,13 +120,11 @@ ExternalProject_Add( Statismo
     ${ep_common_args}
     ${cmake_hdf5_libs}
     -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
-    -DITK_SUPPORT:BOOL=ON
-    -DVTK_SUPPORT:BOOL=ON
+    ${_itk_args}
+    ${_vtk_args}
     -DBoost_INCLUDE_DIR:PATH=${Boost_INCLUDE_DIR}
     -DBOOST_ROOT:PATH=${BOOST_ROOT}
     -DINSTALL_DEPENDENCIES_DIR:PATH=${INSTALL_DEPENDENCIES_DIR}
-    -DITK_DIR:PATH=${ITK_DIR}
-    -DVTK_DIR:PATH=${VTK_DIR}
     -DHDF5_DIR:PATH=${HDF5_DIR}
     -DEIGEN3_INCLUDE_DIR:PATH=${EIGEN3_INCLUDE_DIR}
   INSTALL_COMMAND ""
