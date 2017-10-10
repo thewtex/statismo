@@ -122,6 +122,7 @@ ExternalProject_Add( Statismo
     -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
     ${_itk_args}
     ${_vtk_args}
+    -Dstatismo_LIB_TYPE:STRING=STATIC
     -DBoost_INCLUDE_DIR:PATH=${Boost_INCLUDE_DIR}
     -DBOOST_ROOT:PATH=${BOOST_ROOT}
     -DINSTALL_DEPENDENCIES_DIR:PATH=${INSTALL_DEPENDENCIES_DIR}
